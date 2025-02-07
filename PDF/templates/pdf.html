@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Summarizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f4f4f4;
+            --text-color: #333;
+            --container-bg-color: #ffffff;
+            --input-bg-color: #f9f9f9;
+            --button-bg-color: #000000;
+            --button-hover-bg-color: #333333;
+            --summary-border-color: #ddd;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #f4f4f4;
+            --container-bg-color: #1e1e1e;
+            --input-bg-color: #333333;
+            --button-bg-color: #f4f4f4;
+            --button-hover-bg-color: #bbbbbb;
+            --summary-border-color: #444444;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: var(--container-bg-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        .file-input-container {
+            margin-bottom: 30px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid var(--summary-border-color);
+            background-color: var(--input-bg-color);
+            font-size: 16px;
+            color: var(--text-color);
+            outline: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        button {
+            padding: 12px 30px;
+            background-color: var(--button-bg-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--button-hover-bg-color);
+            transform: scale(1.05);
+        }
+
+        .summary {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--input-bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--summary-border-color);
+            font-size: 16px;
+            white-space: pre-wrap;
+            display: none;
+            text-align: left;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .summary h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .summary p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .navbar__button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: var(--button-bg-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .navbar__button:hover {
+            background-color: var(--button-hover-bg-color);
+        }
+
+        .navbar__button i {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <button class="navbar__button" id="themeToggler">
+        <i class='bx bx-sun'></i>
+    </button>
+    <div class="container">
+        <h2>Upload a PDF to Summarize</h2>
+        <div class="file-input-container">
+            <input type="file" name="file" accept=".pdf" required>
+        </div>
+        <button onclick="summarizePDF()">Summarize PDF</button>
+        <div id="summary-container" class="summary">
+            <h3>Summary:</h3>
+            <p id="summary-text" class="summary-title">The summary will appear here after processing the file.</p>
+        </div>
+    </div>
+
+    <script>
+        const themeToggler = document.getElementById('themeToggler');
+        const themeIcon = themeToggler.querySelector('i');
+
+        themeToggler.addEventListener('click', () => {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            body.setAttribute('data-theme', newTheme);
+            themeIcon.className = newTheme === 'light' ? 'bx bx-sun' : 'bx bx-moon';
+        });
+
+        async function summarizePDF() {
+            const fileInput = document.querySelector('input[type="file"]');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("Please select a PDF file.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch('/summarize', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                const summaryContainer = document.getElementById('summary-container');
+                const summaryText = document.getElementById('summary-text');
+
+                if (result.summary) {
+                    summaryText.textContent = result.summary;
+                    summaryContainer.style.display = 'block';
+                } else {
+                    summaryText.textContent = result.error || 'An error occurred while processing the file.';
+                    summaryText.classList.add('error');
+                    summaryContainer.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert("An error occurred. Please try again later.");
+            }
+        }
+    </script>
+</body>
+</html>
