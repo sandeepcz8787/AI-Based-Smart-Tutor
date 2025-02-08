@@ -8,7 +8,7 @@ import requests
 load_dotenv()
 
 # Retrieve the Gemini API key from environment variables
-api_key = os.getenv("AIzaSyA43rjBatPbr6-5KfyJoOG_jm4au1FVuw0")  # Ensure this is set in your .env file
+api_key = os.getenv("API KEY")  # Ensure this is set in your .env file
 API_URL = "https://api.gemini.com/v1/roles"  # Gemini API endpoint (check the docs for the correct one)
 
 # Function to fetch questions from Gemini API
