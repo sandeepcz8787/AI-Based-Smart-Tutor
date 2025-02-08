@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 import google.generativeai as genai
 
 # Configure the Gemini API with your API key
-genai.configure(api_key="AIzaSyDzBP8WLUPtJBLycs7_On5sANxueMkTcUE")
+genai.configure(api_key="API KEY")
 
 # Initialize Flask app
 app = Flask(__name__)
