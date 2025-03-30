@@ -29,3 +29,6 @@ For queries, feel free to reach out:
 Developer: Sandeep Chavhan
 Email: sandeepcz8787@example.com
 GitHub: https://github.com/sandeepcz8787
+
+Overview of AI Based Smart Tutor – Front Page 👇
+![image](https://github.com/user-attachments/assets/076bf064-a522-4fa6-bd14-e08b191aa5cf)
